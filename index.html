@@ -1,0 +1,199 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI CIVIL WAR</title>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: #10131d;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+header {
+  text-align: center;
+  padding: 28px 15px;
+  background: #191f30;
+  border-bottom: 2px solid #394969;
+}
+header h1 { margin: 0; font-size: 32px; }
+header p { color: #aebbd4; }
+main { max-width: 1100px; margin: auto; padding: 20px; }
+h2 { margin-top: 28px; }
+.teams {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(280px,1fr));
+  gap: 16px;
+}
+.team {
+  background: #191f30;
+  border: 1px solid #394969;
+  border-radius: 12px;
+  padding: 15px;
+}
+.team h2 { margin-top: 0; }
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 12px 0;
+}
+.tab {
+  background: #29334b;
+  color: white;
+  border: 0;
+  border-radius: 7px;
+  padding: 10px 12px;
+  cursor: pointer;
+}
+.tab.active { background: #416bc0; }
+.panel { display: none; }
+.panel.active { display: block; }
+textarea {
+  width: 100%;
+  min-height: 120px;
+  resize: vertical;
+  background: #0e1422;
+  color: white;
+  border: 1px solid #475574;
+  border-radius: 8px;
+  padding: 12px;
+  margin: 8px 0;
+}
+input {
+  width: 100%;
+  background: #0e1422;
+  color: white;
+  border: 1px solid #475574;
+  border-radius: 8px;
+  padding: 12px;
+}
+button, .open {
+  display: inline-block;
+  background: #416bc0;
+  color: white;
+  border: 0;
+  border-radius: 7px;
+  padding: 10px 14px;
+  cursor: pointer;
+  text-decoration: none;
+  margin: 4px 3px 4px 0;
+}
+.judge {
+  margin-top: 25px;
+  padding: 18px;
+  border: 1px solid #98783d;
+  border-radius: 12px;
+  background: #292317;
+}
+.small { color: #aebbd4; font-size: 13px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>⚔️ AI CIVIL WAR</h1>
+  <p>SIX CONTESTANTS · ONE JUDGE · ONE WINNER</p>
+</header>
+
+<main>
+  <h2>Pregunta del debate</h2>
+  <input id="question" placeholder="Escribí la pregunta para las seis IA...">
+  <button onclick="copyQuestion()">COPIAR PREGUNTA</button>
+
+  <div class="teams">
+    <section class="team">
+      <h2>🔵 EQUIPO A — ORIGINALS</h2>
+      <div id="teamA"></div>
+    </section>
+    <section class="team">
+      <h2>🟠 EQUIPO B — CHALLENGERS</h2>
+      <div id="teamB"></div>
+    </section>
+  </div>
+
+  <section class="judge">
+    <h2>⚖️ PERPLEXITY — JURADO</h2>
+    <p class="small">Reuní las seis respuestas y prepará el informe para el jurado.</p>
+    <button onclick="copyForJudge()">COPIAR INFORME PARA PERPLEXITY</button>
+    <a class="open" href="https://www.perplexity.ai/" target="_blank" rel="noopener">ABRIR PERPLEXITY</a>
+    <textarea id="judgeText" placeholder="Acá aparecerá el informe con las seis respuestas..."></textarea>
+  </section>
+</main>
+
+<script>
+const participants = [
+  {name:"GPT", team:"teamA", url:"https://chatgpt.com/"},
+  {name:"Gemini", team:"teamA", url:"https://gemini.google.com/"},
+  {name:"Grok", team:"teamA", url:"https://grok.com/"},
+  {name:"Claude", team:"teamB", url:"https://claude.ai/"},
+  {name:"DeepSeek", team:"teamB", url:"https://chat.deepseek.com/"},
+  {name:"Meta AI", team:"teamB", url:"https://www.meta.ai/"}
+];
+
+participants.forEach((ai, index) => {
+  const container = document.getElementById(ai.team);
+  const panelId = "panel" + index;
+
+  const tab = document.createElement("button");
+  tab.className = "tab" + (index === 0 ? " active" : "");
+  tab.textContent = ai.name;
+  tab.onclick = () => showPanel(index);
+  container.appendChild(tab);
+
+  const panel = document.createElement("div");
+  panel.id = panelId;
+  panel.className = "panel" + (index === 0 ? " active" : "");
+  panel.innerHTML = `
+    <p><strong>${ai.name}</strong></p>
+    <a class="open" href="${ai.url}" target="_blank" rel="noopener">ABRIR ${ai.name.toUpperCase()}</a>
+    <textarea id="answer${index}" placeholder="Pegá acá la respuesta de ${ai.name}..."></textarea>
+  `;
+  container.appendChild(panel);
+});
+
+function showPanel(index) {
+  document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+  document.getElementById("panel" + index).classList.add("active");
+  document.querySelectorAll(".tab")[index].classList.add("active");
+}
+
+function copyQuestion() {
+  const question = document.getElementById("question").value.trim();
+  if (!question) return alert("Primero escribí una pregunta.");
+  navigator.clipboard.writeText(question)
+    .then(() => alert("¡Pregunta copiada!"))
+    .catch(() => alert("No se pudo copiar. Seleccioná el texto manualmente."));
+}
+
+function copyForJudge() {
+  const question = document.getElementById("question").value.trim();
+  if (!question) return alert("Primero escribí la pregunta.");
+
+  let report = "AI CIVIL WAR - INFORME PARA EL JURADO\n\n";
+  report += "PREGUNTA:\n" + question + "\n\n";
+
+  participants.forEach((ai, index) => {
+    const answer = document.getElementById("answer" + index).value.trim();
+    report += ai.name + " (" + ai.team + "):\n";
+    report += answer || "[SIN RESPUESTA]";
+    report += "\n\n";
+  });
+
+  report += "JURADO: Evaluá exactitud, fuentes, razonamiento y claridad. ";
+  report += "No premies la respuesta más larga si contiene errores. ";
+  report += "Señalá incertidumbres y elegí la mejor respuesta fundamentada.";
+
+  document.getElementById("judgeText").value = report;
+  navigator.clipboard.writeText(report)
+    .then(() => alert("¡Informe preparado y copiado! Pegalo en Perplexity."))
+    .catch(() => alert("Informe preparado. Copialo manualmente."));
+}
+</script>
+
+</body>
+</html>
